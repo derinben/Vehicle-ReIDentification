@@ -84,47 +84,41 @@ def create_positive_pairs():
     for VID in uniVID:
         x = np.squeeze(table[table['VehicleID'] ==VID].values)[1:]  #to query 'table' row by row using VID
         idx = pd.Index(x).notnull() 
-        image_ID_list = []
+        image_ID_list = [] #to store the IDs of active camera
         for i in range(len(idx)):
             if idx[i] == True:
                 image_ID_list.append(i+1)
                 i+1
             else:
-                i+1        
+                i+1       
+                
         tdf = []
         
         for ele in image_ID_list:
             tdf.append(train_df['ImageName'][(train_df['CameraID']==ele) & (train_df['VehicleID'] == VID)].values)
         pairs = []
         for i in range(0,2):
-            ind1 = random.randint(0, len(tdf[0+i])-1)
+            ind1 = random.randint(0, len(tdf[0+i])-1)  #need to refactor to use the length of the longest list within tdf
             x1 = tdf[0+i][ind1]
             pairs.append(x1)
         pairlist.append(pairs)
      
     return pairlist
   
+ar_pairlists =  np.array(create_positive_pairs())
+for i in range(0,6):
+    pos_pairs = create_positive_pairs() 
+    array_pos = np.array(pos_pairs)
+    ar_pairlists = np.vstack((ar_pairlists,array_pos))
 
-pairlist1  = create_positive_pairs()
-pairlist2  = create_positive_pairs()
-pairlist3  = create_positive_pairs()
-pairlist4  = create_positive_pairs()
-pairlist5  = create_positive_pairs()
-
-ar_p1 = np.array(pairlist1)
-ar_p2 = np.array(pairlist2)
-ar_p3 = np.array(pairlist3)
-ar_p4 = np.array(pairlist4)
-ar_p5 = np.array(pairlist5)
-
-ar_pairlists = np.vstack((ar_p1,ar_p2,ar_p3,ar_p4,ar_p5))
-
-positive_pair_df = pd.DataFrame(data = ar_pairlists, columns = ['Image1','Image2'])
+positive_pair_df = pd.DataFrame(data = ar_pairlists,columns =['Image1','Image2'])
 positive_pair_df['label'] = 1
 positive_pair_df.drop_duplicates(inplace=True)
 
-# print(positive_pair_df.shape)
-# print(positive_pair_df.head())
+print(positive_pair_df.shape)
+print(positive_pair_df.head())
+
+#Negative pairs
 
 def create_neg_pairs():
     pairs = []
@@ -132,7 +126,7 @@ def create_neg_pairs():
     for VID in uniVID:
         x = np.squeeze(table[table['VehicleID'] ==VID].values)[1:]  #to query 'table' row by row using VID
         idx = pd.Index(x).notnull() 
-        image_ID_list = []
+        image_ID_list = []  #to store the IDs of active camera
         for i in range(len(idx)):
             if idx[i] == True:
                 image_ID_list.append(i+1)
@@ -142,10 +136,8 @@ def create_neg_pairs():
         #print("For Vehicle ID {}, the active cameras are {}, total = {} ".format(VID,image_ID_list, len(image_ID_list)))
         
         tdf = []
-        i = 0 
         for ele in image_ID_list:
             tdf.append(train_df['ImageName'][(train_df['CameraID']==ele) & (train_df['VehicleID'] == VID)].values)  
-            i=i+1
 
         ind1 = random.randint(0,len(image_ID_list)-1)
         ind2 = random.randint(0, len(tdf[ind1])-1)
@@ -158,29 +150,24 @@ def create_neg_pairs():
 
     return pairs
     
+ar_pairlists =  np.array(create_neg_pairs())
+for i in range(0,6):
+    neg_pairs = create_neg_pairs() 
+    array_neg = np.array(neg_pairs)
+    ar_pairlists = np.vstack((ar_pairlists,array_neg))
 
-pairlist1  = create_neg_pairs()
-pairlist2  = create_neg_pairs()
-pairlist3  = create_neg_pairs()
-pairlist4 = create_neg_pairs()
-pairlist5 = create_neg_pairs()
-
-ar_p1 = np.array(pairlist1)
-ar_p2 = np.array(pairlist2)
-ar_p3 = np.array(pairlist3)
-ar_p4 = np.array(pairlist4)
-ar_p5 = np.array(pairlist5)
-
-ar_pairlists = np.vstack((ar_p1,ar_p2,ar_p3,ar_p4,ar_p5))
 negative_pair_df = pd.DataFrame(data = ar_pairlists,columns =['Image1','Image2'])
 negative_pair_df['label'] = 0
 negative_pair_df.drop_duplicates(inplace=True)
+
+print(negative_pair_df.shape)
+print(negative_pair_df.head(10))
 
 # print(negative_pair_df.shape)
 # print(negative_pair_df.head(10))
 
 siamese_df = positive_pair_df.copy()
 siamese_df = siamese_df.append(negative_pair_df,ignore_index=True)
-siamese_df = siamese_df.sample(frac=1).reset_index(drop=True)
+siamese_df = siamese_df.reset_index(drop=True)
 siamese_df['label'] = siamese_df['label'].astype(str)
 #print(siamese_df.head())
