@@ -134,10 +134,13 @@ class CustomCallBack(tf.keras.callbacks.Callback):
 mycallback = CustomCallBack()
 
 adam = tf.keras.optimizers.Adam()
-model.compile(loss='binary_crossentropy', optimizer=adam, metrics =['accuracy'])
-history = model.fit(train_gen,  steps_per_epoch = len( train_siamese)//16, epochs=20 
-                    ,validation_data= val_gen, validation_steps= len(val_siamese)//16
-                    ,callbacks= [early_stopping_cb,mc,mycallback])
+model.compile(loss='binary_crossentropy', optimizer=adam, metrics =['accuracy' , tf.keras.metrics.Precision() , tf.keras.metrics.Recall()])
+history = model.fit(train_gen,  
+                    steps_per_epoch = len( train_siamese)//16, 
+                    epochs=20,
+                    validation_data= val_gen, 
+                    validation_steps= len(val_siamese)//16,
+                    callbacks= [early_stopping_cb,mc,mycallback])
 
 fig = plt.figure(figsize=(10,10))
 
