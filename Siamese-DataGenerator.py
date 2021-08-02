@@ -68,10 +68,11 @@ datafiles = data(train_path, test_path)
 train_df , test_df = datafiles.change()
 
 
-# to generate positive and negative pairs 
+#to find the active cameras for every VehicleID
+
 grpdf = train_df.groupby(['CameraID','VehicleID']).count()
 table = pd.pivot_table(grpdf, values='ImageName', index=['VehicleID'], columns=['CameraID'], aggfunc=np.sum)
-train_df['CameraID'] =  train_df['CameraID'].astype(str).str[-2:].astype(np.int64)
+train_df['CameraID'] =  train_df['CameraID'].astype(str).str[-2:].astype(np.int64)  
 table = table.reset_index()
 #print(table.columns)
 
