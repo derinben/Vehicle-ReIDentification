@@ -1,5 +1,4 @@
-<h1> Improved Computer Vision-based Framework for Electronic Toll
-Collection </h1>
+<h1> Improved Computer Vision-based Framework for Vehicle Re-id </h1>
 
 This model proposes an automatic vehicle fingerprinting system that helps quick re-identification of adversarial vehicles. 
 
